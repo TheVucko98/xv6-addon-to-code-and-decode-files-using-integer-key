@@ -438,3 +438,25 @@ sys_pipe(void)
 	fd[1] = fd1;
 	return 0;
 }
+
+extern int gEcho;
+int key = -1;
+
+int
+sys_setkey(void){
+	if(argint(0,&key) < 0)
+		return -1;
+	e9printf("%d\n",key);
+	return 0;
+}
+
+
+int
+sys_setecho(void){
+    
+	if(argint(0,&gEcho) < 0)
+		return -1;
+  
+
+    return 0;
+}

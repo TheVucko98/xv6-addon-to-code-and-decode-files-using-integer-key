@@ -28,6 +28,8 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int setecho(int do_echo);
+int setkey(int);
 
 // ulib.c
 int stat(const char*, struct stat*);
