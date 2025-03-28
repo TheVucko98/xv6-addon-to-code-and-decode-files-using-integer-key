@@ -368,11 +368,12 @@ iunlockput(struct inode *ip)
 static uint
 bmap(struct inode *ip, uint bn)
 {
-	uint addr, *a;
-	struct buf *bp;
+	uint addr, *a,*b;
+	struct buf *bp,*bl;
 
 	if(bn < NDIRECT){
-		if((addr = ip->addrs[bn]) == 0)
+		addr = ip->addrs[bn];
+		if(addr == 0)
 			ip->addrs[bn] = addr = balloc(ip->dev);
 		return addr;
 	}
@@ -391,6 +392,44 @@ bmap(struct inode *ip, uint bn)
 		brelse(bp);
 		return addr;
 	}
+	bn -= NINDIRECT;
+	e9printf("bn = %d", bn);
+	if(bn < NINDINDDIRECT) {
+		// Load double-indirect block, allocating if necessary.
+		if((addr = ip->addrs[NDIRECT+1]) == 0)
+			ip->addrs[NDIRECT+1] = addr = balloc(ip->dev);
+		
+		bp = bread(ip->dev, addr);
+		a = (uint*)bp->data;
+	
+		// 'x' je pozicija u prvom nivou (indirektni blok)
+		int x = bn / NINDIRECT;
+		int y = bn % NINDIRECT;
+		e9printf("x = %d, y = %d\n", x, y);  // za debagovanje
+	
+		if((addr = a[x]) == 0){
+			// Alociraj novi blok za prvi nivo
+			a[x] = addr = balloc(ip->dev);
+			log_write(bp);
+		}
+	
+		brelse(bp);
+	
+		// Load the second level (actual block)
+		bl = bread(ip->dev, addr);
+		b = (uint*)bl->data;
+	
+		if((addr = b[y]) == 0){
+			// Alociraj blok u drugom nivou
+			b[y] = addr = balloc(ip->dev);
+			log_write(bl);
+		}
+	
+		brelse(bl);
+	
+		return addr;
+	}
+	e9printf("Nemoguce doci ovde!\n");
 
 	panic("bmap: out of range");
 }
@@ -424,6 +463,32 @@ itrunc(struct inode *ip)
 		brelse(bp);
 		bfree(ip->dev, ip->addrs[NDIRECT]);
 		ip->addrs[NDIRECT] = 0;
+	}
+	if(ip->addrs[NDIRECT+1]){
+		bp = bread(ip->dev, ip->addrs[NDIRECT+1]);
+		a = (uint*)bp->data;
+
+
+		for(j = 0; j < NINDIRECT; j++){
+			if(a[j]){
+				struct buf* bx = bread(ip->dev, a[j]);
+				uint* x = (uint*)bx->data;
+				for (int k = 0; k < NINDIRECT; k++)
+				{
+					if(x[k]){
+						bfree(ip->dev, x[k]);
+					}
+				}
+				brelse(bx);
+				bfree(ip->dev, a[j]);
+			}
+				
+		}
+		brelse(bp);
+
+
+		bfree(ip->dev, ip->addrs[NDIRECT+1]);
+		ip->addrs[NDIRECT+1] = 0;
 	}
 
 	ip->size = 0;

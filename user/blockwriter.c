@@ -88,11 +88,13 @@ int main(int argc, char *argv[]) {
     }
 
    
-    char buffer[4] = "aca";
+    char buffer[BLOCK_SIZE] = {'a'};
+    memset(buffer, 'a', BLOCK_SIZE);
+
      
 
     for (int i = 0; i < blocks; i++) {
-        for(int k = 0; k < BLOCK_SIZE/4;k++){
+  
             if (i >= 100 && i < 1000) {
                 int x = i;
     
@@ -106,21 +108,19 @@ int main(int argc, char *argv[]) {
         
           
     
-            if (write(fd, buffer, 4) != 4) {
+            if (write(fd, buffer, BLOCK_SIZE) != BLOCK_SIZE) {
                 printf("Error: Write failed at block %d\n", i);
                 close(fd);
                 exit();
             }
       
-        }
-        for(int j = 0; j < 4; j++){
-            printf("%c", buffer[j]);
-        }
+        
+       
         printf("\n");
         printf("Creating block %d/%d\n", i + 1, blocks);
        
         
     }
-
+    close(fd);
     exit();
 }
