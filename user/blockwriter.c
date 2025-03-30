@@ -18,6 +18,7 @@ int isNumber(char* str){
 
 void print_help() {
     printf("Usage: blockwriter [OPTIONS]\n");
+    printf(" With not parameters default block = 150, default name = long.txt \n");
     printf("--help (-h)           Show help menu\n");
     printf("--output-file (-o)    Set output filename (default: long.txt)\n");
     printf("--blocks (-b)         Set number of blocks (default: 150)\n");

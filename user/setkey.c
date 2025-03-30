@@ -14,23 +14,34 @@ int isNumber(char* str){
     return 1;
 }
 
+void print_help() {
+    printf("Use this program to set the current active key.\n");
+    printf("After setting the key, you use encr and decr with key\n");
+    printf("Usage: setkey [OPTION]... [KEY]\n");
+    printf('\n');
+    printf("--help (-h)           Show help menu\n");
+    printf("--secret (-s)    Enter the key via STDIN. Hide key when entering it.\n");
+    
+}
+
 
 int
 main(int argc, char** argv){
     if(argc != 2){
-        printf("Greska\n");
+        printf("Error: Must contain 2 arguments!\n");
         exit();
     }
     int x;
     if(strcmp(argv[1],  "-h") == 0 || strcmp(argv[1],"--help") == 0){
-        printf("Helo je ovde!\n");
+        print_help();
         exit();
     }else if (strcmp(argv[1],  "-s") == 0 || strcmp(argv[1],"--secret") == 0){
         char buff[20];
+        printf("Enter the key: ");
         setecho(0);
         gets(buff,20);
         if(!isNumber(buff)){
-            printf("Neispravan unos\n");
+            printf("Error: Invalid input, must contain only numbers\n");
             setecho(1);
             exit();
         }
@@ -40,7 +51,7 @@ main(int argc, char** argv){
         
     }else{
         if(!isNumber(argv[1])){
-            printf("Neispravan unos\n");
+            printf("Error: Invalid input, must contain only numbers\n");
             exit();
         }
         int key = atoi(argv[1]);

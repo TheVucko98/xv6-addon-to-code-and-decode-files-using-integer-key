@@ -89,21 +89,44 @@ filestat(struct file *f, struct stat *st)
 	}
 	return -1;
 }
+// Cezar pretvaranje stringa
+extern int key;
+void cezarEncrDecr(char* str, int n, int encr){
+	if(key < 0){
+		panic("file.c\\cezarEncrDecr nije key stavljen! \n \n");
+	}
+	int keyVal ;
+	if(encr){
+		keyVal = key;
+	}else{
+		keyVal = -key;
+	}
+	for(int i = 0; i < n;i++){
+		str[i] = (str[i]+ keyVal) % 256;
+	}
+}
 
 // Read from file f.
 int
 fileread(struct file *f, char *addr, int n)
 {
 	int r;
-
+	/// Provera da li se dobije isti char broj, posto pise ceo ASCII
+	//e9printf("%d\n%d\n%d\n", (char)252,(char)(252+200),(char)((252+200)-200));
 	if(f->readable == 0)
 		return -1;
 	if(f->type == FD_PIPE)
 		return piperead(f->pipe, addr, n);
 	if(f->type == FD_INODE){
 		ilock(f->ip);
-		if((r = readi(f->ip, addr, f->off, n)) > 0)
+		if((r = readi(f->ip, addr, f->off, n)) > 0){
+			if(f->ip->minor != 1 && f->ip->major == 1 &&  f->ip->type == T_FILE) {// jer konzola 1 1 minor i major
+				cezarEncrDecr(addr,r,0);
+			}
+			
 			f->off += r;
+		}
+			
 		iunlock(f->ip);
 		return r;
 	}
@@ -129,14 +152,22 @@ filewrite(struct file *f, char *addr, int n)
 		// might be writing a device like the console.
 		int max = ((MAXOPBLOCKS-1-1-2) / 2) * 512;
 		int i = 0;
+		//
+		
 		while(i < n){
 			int n1 = n - i;
 			if(n1 > max)
 				n1 = max;
-
+			//
+			char  str[((MAXOPBLOCKS-1-1-2) / 2) * 512];
+			memmove(str, addr+i,n1);
+			if(f->ip->minor != 1 && f->ip->major == 1 &&  f->ip->type == T_FILE) {// jer konzola 1 1 minor i major
+				cezarEncrDecr(str,n1,1);
+			}
+			//
 			begin_op();
 			ilock(f->ip);
-			if ((r = writei(f->ip, addr + i, f->off, n1)) > 0)
+			if ((r = writei(f->ip, str , f->off, n1)) > 0)
 				f->off += r;
 			iunlock(f->ip);
 			end_op();

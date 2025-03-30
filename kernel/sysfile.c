@@ -450,6 +450,26 @@ sys_setkey(void){
 	return 0;
 }
 
+int
+sys_encr(void){
+	struct file *fd;
+	if(argfd(0,0,&fd) < 0){
+		return -5;
+	}
+	int n;
+	char buf[512];
+	while((n = fileread(fd,buf,sizeof(buf))) > 0){
+		e9printf("%d!\n",n);
+		fd->off -= n;
+		fd->ip->major = 1;
+		filewrite(fd,buf,n);
+		fd->ip->major = 0;
+	}
+	fd->ip->major = 1;
+
+	e9printf("USao\n");
+	return 0;
+}
 
 int
 sys_setecho(void){

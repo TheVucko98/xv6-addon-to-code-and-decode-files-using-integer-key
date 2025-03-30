@@ -60,6 +60,7 @@
     "*html": "html",
     "types.h": "c",
     "stdint.h": "c",
-    "param.h": "c"
+    "param.h": "c",
+    "*.tcc": "c"
   }
 }
