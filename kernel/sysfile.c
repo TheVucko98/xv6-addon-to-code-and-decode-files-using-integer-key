@@ -440,14 +440,27 @@ sys_pipe(void)
 }
 
 extern int gEcho;
-int key = -1;
+int key = 0;
+int setovan = 0;
 
 int
 sys_setkey(void){
 	if(argint(0,&key) < 0)
 		return -1;
-	e9printf("%d\n",key);
+	setovan = 1;
 	return 0;
+}
+
+
+void cezarEncrDecr(char* str, int n, int encr);
+
+void saveMajor(struct file *fd, int maj){
+	begin_op();
+	ilock(fd->ip);
+	fd->ip->major = maj;
+	iupdate(fd->ip);
+	iunlock(fd->ip);
+	end_op();
 }
 
 int
@@ -456,16 +469,65 @@ sys_encr(void){
 	if(argfd(0,0,&fd) < 0){
 		return -5;
 	}
+	if(setovan == 0){
+		return -1;
+	}
+	if(fd->ip->type == T_DEV){
+		return -2;
+	}
+
+	int n;
+	char buf[512];
+	e9printf("MAJORE %d\n", fd->ip->major);
+	if(fd->ip->major == 1){
+		return -3;
+	}
+	int i = 0;
+	while((n = fileread(fd,buf,sizeof(buf))) > 0){
+		e9printf("i = %d\n", i);
+		fd->off -= n;
+		cezarEncrDecr(buf,n,1);
+		e9printf("%s !\n",buf);
+		e9printf("n = %d\n", n);
+		buf[BSIZE-1] = '\n';
+		filewrite(fd,buf,n);
+		i++;
+	}
+	
+	saveMajor(fd,1);
+	e9printf("MAJORE END %d\n", fd->ip->major);
+	return 0;
+}
+
+int
+sys_decr(void){
+	struct file *fd;
+	if(argfd(0,0,&fd) < 0){
+		return -5;
+	}
+	if(setovan == 0){
+		return -1;
+	}
+	if(fd->ip->type == T_DEV){
+		return -2;
+	}
+	if(fd->ip->major == 0){
+		return -3;
+	}
+
 	int n;
 	char buf[512];
 	while((n = fileread(fd,buf,sizeof(buf))) > 0){
 		e9printf("%d!\n",n);
 		fd->off -= n;
-		fd->ip->major = 1;
+		
+		buf[BSIZE-1] = '\n';
+
 		filewrite(fd,buf,n);
-		fd->ip->major = 0;
+	
+
 	}
-	fd->ip->major = 1;
+	saveMajor(fd,0);
 
 	e9printf("USao\n");
 	return 0;

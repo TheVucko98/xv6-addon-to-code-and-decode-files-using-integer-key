@@ -89,8 +89,13 @@ int main(int argc, char *argv[]) {
     }
 
    
-    char buffer[BLOCK_SIZE] = {'a'};
-    memset(buffer, 'a', BLOCK_SIZE);
+    char buffer[BLOCK_SIZE] ;
+    const int NUMB_CHARS = 16;
+    for(int i = 0; i < BLOCK_SIZE/NUMB_CHARS;i++){
+        strncpy(buffer+i*NUMB_CHARS, "abcdefghijklmno", NUMB_CHARS);
+
+    }
+    buffer[BLOCK_SIZE-1] ='\n';
 
      
 
@@ -117,7 +122,6 @@ int main(int argc, char *argv[]) {
       
         
        
-        printf("\n");
         printf("Creating block %d/%d\n", i + 1, blocks);
        
         

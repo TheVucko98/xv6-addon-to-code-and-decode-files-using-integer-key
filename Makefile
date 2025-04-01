@@ -201,6 +201,8 @@ UPROGS=\
 	$U/_setkey\
 	$U/_blockwriter\
 	$U/_encr\
+	$U/_decr\
+	$U/_test\
 
 
 fs.img: $T/mkfs README $(UPROGS)

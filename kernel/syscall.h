@@ -26,4 +26,5 @@
 #define SYS_setecho 22
 #define SYS_setkey 23
 #define SYS_encr 24
+#define SYS_decr 25
 #endif // KERNEL_SYSCALL_H

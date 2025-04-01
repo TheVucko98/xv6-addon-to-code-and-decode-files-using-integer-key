@@ -92,9 +92,8 @@ filestat(struct file *f, struct stat *st)
 // Cezar pretvaranje stringa
 extern int key;
 void cezarEncrDecr(char* str, int n, int encr){
-	if(key < 0){
-		panic("file.c\\cezarEncrDecr nije key stavljen! \n \n");
-	}
+	
+	
 	int keyVal ;
 	if(encr){
 		keyVal = key;
@@ -120,7 +119,9 @@ fileread(struct file *f, char *addr, int n)
 	if(f->type == FD_INODE){
 		ilock(f->ip);
 		if((r = readi(f->ip, addr, f->off, n)) > 0){
-			if(f->ip->minor != 1 && f->ip->major == 1 &&  f->ip->type == T_FILE) {// jer konzola 1 1 minor i major
+			
+			if(f->ip->major == 1 && f->ip->minor == 0) {// jer konzola 1 1 minor i major
+				e9printf("BRUT USAO U CEZARA\n");
 				cezarEncrDecr(addr,r,0);
 			}
 			
@@ -161,10 +162,10 @@ filewrite(struct file *f, char *addr, int n)
 			//
 			char  str[((MAXOPBLOCKS-1-1-2) / 2) * 512];
 			memmove(str, addr+i,n1);
-			if(f->ip->minor != 1 && f->ip->major == 1 &&  f->ip->type == T_FILE) {// jer konzola 1 1 minor i major
+			if(f->ip->major == 1 && f->ip->minor == 0) {// jer konzola 1 1 minor i major 
 				cezarEncrDecr(str,n1,1);
 			}
-			//
+			
 			begin_op();
 			ilock(f->ip);
 			if ((r = writei(f->ip, str , f->off, n1)) > 0)

@@ -18,8 +18,8 @@ void print_help() {
     printf("Use this program to set the current active key.\n");
     printf("After setting the key, you use encr and decr with key\n");
     printf("Usage: setkey [OPTION]... [KEY]\n");
-    printf('\n');
-    printf("--help (-h)           Show help menu\n");
+    
+    printf("\n--help (-h)    Show help menu\n");
     printf("--secret (-s)    Enter the key via STDIN. Hide key when entering it.\n");
     
 }
@@ -47,16 +47,19 @@ main(int argc, char** argv){
         }
         setkey(atoi(buff));
         setecho(1);
-        printf("%s\n", buff);
         
     }else{
         if(!isNumber(argv[1])){
-            printf("Error: Invalid input, must contain only numbers\n");
+            printf("Error: Invalid input, must contain only numbers.\n");
             exit();
         }
         int key = atoi(argv[1]);
+        if(key < 0){
+            printf("Error: Invalid input, key must be postive number.\n");
+            exit();
+        }
         setkey(key);
-        printf("%d\n",key);
+        
         
     }
     

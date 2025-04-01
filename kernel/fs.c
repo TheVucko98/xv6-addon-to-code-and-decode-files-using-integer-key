@@ -415,7 +415,7 @@ bmap(struct inode *ip, uint bn)
 	
 		brelse(bp);
 	
-		// Load the second level (actual block)
+		// 2. nivo blokovi koji pokazuju na podatke prave 
 		bl = bread(ip->dev, addr);
 		b = (uint*)bl->data;
 	
