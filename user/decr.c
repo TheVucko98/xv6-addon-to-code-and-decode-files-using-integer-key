@@ -1,4 +1,6 @@
+#include "kernel/stat.h"
 #include "user.h"
+#include "kernel/fs.h"
 
 void print_help() {
     printf("Use this program to decrypt selected encrypted files or all files in directorium.\n");    printf("Usage: encr [OPTION]\n");
@@ -7,8 +9,65 @@ void print_help() {
     printf("--decrypt-all (-a)    decrypt all encrypted files in directory\n");
     
 }
+char*
+fmtname(char *path)
+{
+	static char buf[DIRSIZ+1];
+	char *p;
 
-void openAndEncrFile(char* filename){
+	// Find first character after last slash.
+	for(p=path+strlen(path); p >= path && *p != '/'; p--)
+		;
+	p++;
+
+	// Return blank-padded name.
+	if(strlen(p) >= DIRSIZ)
+		return p;
+	memmove(buf, p, strlen(p));
+    buf[strlen(p)] = '\0';
+	return buf;
+}
+
+void openCurrDirAndDecrFiles(){
+    char *path = ".";
+    char buf[512], *p;
+	int fd;
+	struct dirent de;
+	struct stat st;
+
+	if((fd = open(path, 0)) < 0){
+		fprintf(2, "decr: cannot open %s\n", path);
+		return;
+	}
+
+	if(fstat(fd, &st) < 0){
+		fprintf(2, "decr: cannot stat %s\n", path);
+		close(fd);
+		return;
+	}
+
+    
+    strcpy(buf, path);
+    p = buf+strlen(buf);
+    *p++ = '/';
+    while(read(fd, &de, sizeof(de)) == sizeof(de)){
+        if(de.inum == 0)
+            continue;
+        memmove(p, de.name, DIRSIZ);
+        p[DIRSIZ] = 0;
+        if(stat(buf, &st) < 0){
+            printf("decr: cannot stat %s\n", buf);
+            continue;
+        }
+        if(st.type == T_FILE)
+        openAndDecrFile(fmtname(buf));
+    }
+    close(fd);
+
+}
+
+
+void openAndDecrFile(char* filename){
     
     int fd = open(filename, O_RDWR);
         if(fd < 0){
@@ -45,14 +104,14 @@ main(int argc, char **argv){
         exit();
     }else if(argc == 2 && (strcmp(argv[1],  "-a") == 0 || strcmp(argv[1],"--encrypt-all") == 0)){
         
-        printf("%s", argv[1]);
+        openCurrDirAndDecrFiles();
 
     }else if(argc > 2){
         for(int i = 1; i < argc;i++){
-            openAndEncrFile(argv[i]);
+            openAndDecrFile(argv[i]);
         }
     }else{
-        openAndEncrFile(argv[1]);
+        openAndDecrFile(argv[1]);
     }
     
     exit();
