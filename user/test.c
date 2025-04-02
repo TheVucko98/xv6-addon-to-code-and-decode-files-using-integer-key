@@ -12,7 +12,9 @@ void sysPoziv(char** args){
         }
         printf("\n");
         sleep(300);
-        exec(path, args);  
+        //
+        exec(path, args); 
+        // 
         printf("exec failed: %s\n", path);
         exit();  
     }

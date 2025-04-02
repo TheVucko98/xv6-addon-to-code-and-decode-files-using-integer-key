@@ -517,7 +517,7 @@ sys_decr(void){
 	int n;
 	char buf[512];
 	while((n = fileread(fd,buf,sizeof(buf))) > 0){
-		e9printf("%d!\n",n);
+		
 		fd->off -= n;
 		cezarEncrDecr(buf,n,0);
 		e9printf("Decr : \n %s \n", buf);
@@ -527,7 +527,7 @@ sys_decr(void){
 	}
 	saveMajor(fd,0);
 
-	e9printf("USao\n");
+	
 	return 0;
 }
 

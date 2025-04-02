@@ -92,8 +92,7 @@ int main(int argc, char *argv[]) {
     char buffer[BLOCK_SIZE] ;
     const int NUMB_CHARS = 16;
     for(int i = 0; i < BLOCK_SIZE/NUMB_CHARS;i++){
-        strncpy(buffer+i*NUMB_CHARS, "abcdefghijklmno", NUMB_CHARS);
-
+        strncpy(buffer+i*NUMB_CHARS, "abcdefghijklmno?", NUMB_CHARS);
     }
     buffer[BLOCK_SIZE-1] ='\n';
 
