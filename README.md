@@ -84,7 +84,7 @@ Options:
 
 ```bash
 # Clone your assigned repository
-git clone <your-github-classroom-repo>
+git clone https://github.com/TheVucko98/xv6-addon-to-code-and-decode-files-using-integer-key.git
 
 cd projectName
 make qemu
