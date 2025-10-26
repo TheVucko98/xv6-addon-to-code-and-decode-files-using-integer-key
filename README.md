@@ -86,5 +86,5 @@ Options:
 # Clone your assigned repository
 git clone <your-github-classroom-repo>
 
-cd xv6-public
+cd projectName
 make qemu
