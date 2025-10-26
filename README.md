@@ -1,4 +1,4 @@
-# OS2025 - Homework 2: xv6 File System Enhancement
+# OS2025  xv6 File System Enhancement
 
 This project extends the MIT xv6 operating system by adding advanced file system features, encryption capabilities, and new system calls and user-space utilities.
 
